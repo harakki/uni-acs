@@ -22,12 +22,7 @@ ram_available=$(free -h | awk '/Mem: / {print $7}')
 # Get network configuration data
 node_name=$(uname -n)
 local_ip_address=$(ip -o -4 addr show | awk '{print $2 ": " $4}' | sed -n ':a;N;${s/\n/, /g;p};ba')
-internet_speed="0 KB/s"
-public_ip_address=$(curl -sS ident.me)
-if [ $? -eq 0 ]; then
-    # Files for internet speed test we download from here http://xcal1.vodafone.co.uk/
-    internet_speed=$(wget -O /dev/null http://212.183.159.230/5MB.zip 2>&1 | grep -oP '\(\K[\d.]+ [KMGT]B/s')
-fi
+adapter_speed=$(ethtool eth0 2> /dev/null | grep 'Speed:' | awk -F: '{print $2}')
 mac_address=$(ip link show | awk '/ether/ {print $2}')
 
 # Get drive data
@@ -50,9 +45,8 @@ echo "used ram             : ${ram_used}"
 echo "free ram             : ${ram_available}"
 echo "host name            : ${node_name}"
 echo "local ip addresses   : ${local_ip_address}"
-echo "public ip address    : ${public_ip_address}"
 echo "mac                  : ${mac_address}"
-echo "network speed        : ${internet_speed}"
+echo "adapter speed        : ${adapter_speed/ }"
 echo "system mount point   : ${mount_point}"
 echo "partition size       : ${partition_size}"
 echo "memory used          : ${used_memory}"
