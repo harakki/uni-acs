@@ -1,0 +1,17 @@
+services:
+  serv:
+    build: server
+    container_name: server
+    volumes:
+      - ansiblevolume:/etc/ansible
+
+  ws1:
+    build: workstation
+    container_name: workstation-1
+
+  ws2:
+    build: workstation
+    container_name: workstation-2
+
+volumes:
+  ansiblevolume:
