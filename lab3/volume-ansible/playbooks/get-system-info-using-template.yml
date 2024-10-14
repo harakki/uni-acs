@@ -1,0 +1,13 @@
+---
+
+- hosts: all
+  gather_facts: no
+  tasks:
+    - name: generate system info
+      setup:
+
+    - name: save system info into json
+      ansible.builtin.template:
+        src: templates/system-info.j2
+        dest: "/tmp/system_info_{{ inventory_hostname }}_using_template.json"
+      delegate_to: localhost

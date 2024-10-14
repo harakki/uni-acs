@@ -2,21 +2,24 @@ FROM ubuntu:24.04
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+    sudo \
+    nano \
+    rsync \
     python3 \
     python3-pip \
-    nano
-
-RUN apt-get install -y \
+    python3-docker \
+    python3-requests \
     openssh-server \
-    && mkdir /var/run/sshd
-
-RUN apt-get install \
-    sshpass
+    docker.io \
+    docker-compose
 
 RUN rm -rf /var/lib/apt/lists/*
 
 RUN useradd -ms /bin/bash -g root -G sudo user \
-    && chpasswd user:pass
+    && echo "user:pass" | chpasswd \
+    && echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+RUN mkdir /var/run/sshd
 
 EXPOSE 22
 

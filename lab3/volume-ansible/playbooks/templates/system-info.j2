@@ -1,0 +1,6 @@
+{
+  "server_name": "{{ inventory_hostname }}",
+  "linux_distro": "{{ ansible_facts['distribution'] }}",
+  "mem_mb": "{{ ansible_facts['memtotal_mb'] }}",
+  "processors": {{ ansible_facts['processor'] | tojson }}
+}

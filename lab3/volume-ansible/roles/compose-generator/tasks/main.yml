@@ -1,0 +1,11 @@
+---
+# tasks file for compose-generator
+- name: create directory
+  ansible.builtin.file:
+    path: /tmp/compose/
+    state: directory
+    
+- name: generate Docker Compose file
+  template:
+    src: docker-compose-alpine.j2
+    dest: /tmp/compose/compose.yml

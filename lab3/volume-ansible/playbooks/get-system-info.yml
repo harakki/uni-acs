@@ -1,0 +1,14 @@
+---
+
+- hosts: all
+  gather_facts: no
+  tasks:
+    - name: generate system info
+      setup:
+        filter: "ansible_distribution*,ansible_memtotal_mb,ansible_processor*"
+
+    - name: save system info into json
+      copy:
+        content: "{{ ansible_facts | to_nice_json }}"
+        dest: "/tmp/system_info_{{ inventory_hostname }}.json"
+      delegate_to: localhost

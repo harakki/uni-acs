@@ -1,0 +1,9 @@
+---
+
+- hosts: serv1
+  roles:
+    - compose-generator
+
+- hosts: serv2
+  roles:
+    - container-orchestrator
