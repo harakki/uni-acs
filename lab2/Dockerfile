@@ -18,4 +18,3 @@ RUN apk add --no-cache --virtual .build-deps \
     && if [ -f "/etc/apk/keys/abuild-key.rsa.pub" ]; then rm -f /etc/apk/keys/abuild-key.rsa.pub; fi
 
 ENTRYPOINT [ "/usr/bin/signal-handler" ]
-

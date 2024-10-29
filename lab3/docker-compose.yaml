@@ -1,26 +1,22 @@
 services:
-  ctrl:
+  control:
     build: 
       context: .
       dockerfile: control.Dockerfile
-    container_name: ctrl
     volumes:
-      - ~/developer/uni-acs/lab3/volume-ansible/:/etc/ansible/
+      - ./volume-ansible/:/etc/ansible/
     tty: true
 
   serv1:
     build: 
       context: .
       dockerfile: managed.Dockerfile
-    container_name: serv1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    entrypoint: 
 
   serv2:
     build: 
       context: .
       dockerfile: managed.Dockerfile
-    container_name: serv2
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
