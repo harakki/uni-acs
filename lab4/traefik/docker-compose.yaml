@@ -1,0 +1,41 @@
+services:
+  traefik-proxy:
+    image: traefik:v3.2
+    container_name: traefik-proxy
+    command:
+      # Активировать веб-интерфейс
+      - "--api.insecure=true"
+      # Отслеживание Докер-контейнеров
+      - "--providers.docker=true"
+      # Отключение автоматического объявления контейнера в сети
+      - "--providers.docker.exposedbydefault=false"
+      # Отслеживание изменения конфигурационного файла
+      - "--providers.file.watch=true"
+      # Подробное логирование
+      - "--log.level=DEBUG"
+      # Точки входа
+      - "--entryPoints.http.address=:80"
+      - "--entryPoints.https.address=:433"
+    restart: unless-stopped
+    ports:
+      # Порт HTTP
+      - "80:80"
+      # Порт HTTPS
+      - "433:433"
+      # Порт веб-интерфейса
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  web:
+    image: nginxdemos/hello:plain-text # traefik/whoami
+    deploy:
+      replicas: 2
+    labels:
+      # Проксировать через Traefik
+      - "traefik.enable=true"
+      # Объявить веб-адрес сервера
+      - "traefik.http.routers.web.rule=Host(`localhost`)"
+      # Объявить разрешенные точки входа
+      - "traefik.http.routers.web.entrypoints=http"
+      # Weighted Round Robin доступен только между службами
