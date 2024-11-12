@@ -1,0 +1,17 @@
+# System files
+.DS_Store
+*:Zone.Identifier
+# VCS
+.git/
+.gitignore
+# Common backup files
+*.swp
+*.bak
+*.tmp
+*.orig
+*~
+# Various IDEs
+.project
+.idea/
+*.tmproj
+.vscode/

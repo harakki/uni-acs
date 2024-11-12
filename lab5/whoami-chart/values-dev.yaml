@@ -1,0 +1,15 @@
+app:
+  name: whoami-dev
+namespace: dev
+
+image:
+  tag: "latest"
+
+ingress:
+  hosts:
+    host: dev.localhost
+
+autoscaling:
+  enabled: false
+
+replicaCount: 2

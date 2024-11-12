@@ -1,0 +1,10 @@
+releases:
+  - name: whoami-dev
+    chart: .
+    namespace: dev
+    values:
+      - ./values-dev.yaml
+
+  - name: whoami-release
+    chart: .
+    namespace: production

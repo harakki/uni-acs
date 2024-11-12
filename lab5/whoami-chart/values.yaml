@@ -1,0 +1,27 @@
+app:
+  name: whoami
+namespace: default
+
+image:
+  pullPolicy: IfNotPresent
+  name: traefik/whoami
+  tag: "v1.10"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+ingress:
+  enabled: true
+  hosts:
+      host: whoami.localhost
+      paths:
+          path: /
+          pathType: Prefix
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 15
