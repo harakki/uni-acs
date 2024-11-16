@@ -1,0 +1,13 @@
+route:
+  receiver: 'email'
+
+receivers:
+  - name: 'email'
+    email_configs:
+      - send_resolved: true
+        text: "{{ .CommonAnnotations.description }}"
+        from: 'alertmanager@example.com'
+        to: 'you@example.com'
+        smarthost: 'smtp.example.com:587'
+        auth_username: 'your_username'
+        auth_password: 'your_password'

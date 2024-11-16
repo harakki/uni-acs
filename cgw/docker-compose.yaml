@@ -1,0 +1,173 @@
+services:
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      # Базовая конфигурация
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - '--providers.docker.network=web'
+      - "--global.sendanonymoususage=false"
+      # Точки входа
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entryPoints.metrics.address=:8082"
+      # Перенаправление HTTP запросов на HTTPS
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      # HTTP/3
+      - '--entrypoints.websecure.http3'
+      # Логирование
+      - '--log.level=ERROR'
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.entryPoint=metrics"
+      - "--metrics.prometheus.addrouterslabels=true"
+      # TLS
+      - "tls.certificates.certFile=/etc/certs/example.com+3.pem"
+      - "tls.certificates.keyFile=/etc/certs/example.com+3-key.pem"
+      - "tls.stores.default.defaultCertificate.certFile=/etc/certs/example.com+3.pem"
+      - "tls.stores.default.defaultCertificate.keyFile=/etc/certs/example.com+3-key.pem"
+    labels:
+      # Перенаправление HTTP запросов на HTTPS
+      # - "traefik.http.middlewares.httpsonly.redirectscheme.scheme=https"
+      # - "traefik.http.middlewares.httpsonly.redirectscheme.permanent=true"
+      # - "traefik.http.routers.httpsonly.rule=HostRegexp(`{any:.*}`)"
+      # - "traefik.http.routers.httpsonly.middlewares=httpsonly"
+      # Dashboard
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.example.com`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls=true"     
+      # Активация входа по учетным данным (admin:password)
+      # - "traefik.http.routers.traefik.middlewares=auth"
+      # - "traefik.http.middlewares.auth.basicauth.users=admin:$$2y$$05$$rbYAAreh95n6k8.aNZmmuOHi8Cghqoc5p3kJRF4KV37M7okF2pppe"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./certs/:/etc/certs:ro
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - web
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.example.com`)"
+      - "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.prometheus.tls=true"
+    volumes:
+      - ./prometheus/:/etc/prometheus/:ro
+      - prometheus_data:/prometheus/:rw
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - web
+
+  alertmanager:
+    image: prom/alertmanager
+    container_name: alertmanager
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.alertmanager.rule=Host(`alertmanager.example.com`)"
+      - "traefik.http.routers.alertmanager.entrypoints=websecure"
+      - "traefik.http.routers.alertmanager.tls=true"
+    volumes:
+      - ./alertmanager/:/etc/alertmanager/:ro
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - web
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.example.com`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls=true"
+    volumes:
+      - ./grafana/:/etc/grafana/provisioning/
+      - grafana_data:/var/lib/grafana/
+    environment:
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_BASIC_ENABLED=false
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_DISABLE_SIGNOUT_MENU=true
+      - GF_METRICS_ENABLED=true
+      - GF_USERS_ALLOW_SIGN_UP=false
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - web
+
+  node_exporter:
+    image: prom/node-exporter
+    container_name: node_exporter
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.node_exporter.rule=Host(`nodeexporter.example.com`)"
+      - "traefik.http.routers.node_exporter.entrypoints=websecure"
+      - "traefik.http.routers.node_exporter.tls=true"
+    volumes:
+      - /:/rootfs:ro
+      - /sys:/host/sys:ro
+      - /proc:/host/proc:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - web
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    container_name: cadvisor
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cadvisor.rule=Host(`cadvisor.example.com`)"
+      - "traefik.http.routers.cadvisor.entrypoints=websecure"
+      - "traefik.http.routers.cadvisor.tls=true"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - web
+
+  telegraf:
+    image: telegraf:alpine
+    container_name: telegraf
+    volumes:
+      - ./telegraf/:/etc/telegraf/:ro
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - web
+
+volumes:
+  prometheus_data: {}
+    # driver: local
+  grafana_data: {}
+    # driver: local
+
+networks:
+  web: {}
+    # external: false
