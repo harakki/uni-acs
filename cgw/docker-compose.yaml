@@ -24,16 +24,11 @@ services:
       - "--metrics.prometheus.entryPoint=metrics"
       - "--metrics.prometheus.addrouterslabels=true"
       # TLS
-      - "tls.certificates.certFile=/etc/certs/example.com+3.pem"
-      - "tls.certificates.keyFile=/etc/certs/example.com+3-key.pem"
-      - "tls.stores.default.defaultCertificate.certFile=/etc/certs/example.com+3.pem"
-      - "tls.stores.default.defaultCertificate.keyFile=/etc/certs/example.com+3-key.pem"
+      - "tls.certificates.certFile=/etc/certs/example.pem"
+      - "tls.certificates.keyFile=/etc/certs/example-key.pem"
+      - "tls.stores.default.defaultCertificate.certFile=/etc/certs/example.pem"
+      - "tls.stores.default.defaultCertificate.keyFile=/etc/certs/example-key.pem"
     labels:
-      # Перенаправление HTTP запросов на HTTPS
-      # - "traefik.http.middlewares.httpsonly.redirectscheme.scheme=https"
-      # - "traefik.http.middlewares.httpsonly.redirectscheme.permanent=true"
-      # - "traefik.http.routers.httpsonly.rule=HostRegexp(`{any:.*}`)"
-      # - "traefik.http.routers.httpsonly.middlewares=httpsonly"
       # Dashboard
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.rule=Host(`traefik.example.com`)"
@@ -97,6 +92,7 @@ services:
       - "traefik.http.routers.grafana.tls=true"
     volumes:
       - ./grafana/:/etc/grafana/provisioning/
+      - ./dashboards/:/home/grafana/dashboards/
       - grafana_data:/var/lib/grafana/
     environment:
       - GF_ANALYTICS_REPORTING_ENABLED=false
@@ -164,10 +160,7 @@ services:
 
 volumes:
   prometheus_data: {}
-    # driver: local
   grafana_data: {}
-    # driver: local
 
 networks:
   web: {}
-    # external: false

@@ -1,0 +1,10 @@
+vscode/**
+
+# Certificates
+*.pem
+*.crt
+
+# Executables
+*.out
+*.exe
+*.app

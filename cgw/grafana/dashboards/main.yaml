@@ -8,3 +8,11 @@ providers:
   editable: true
   options:
     path: /var/lib/grafana/dashboards
+
+- name: 'Preconfigured'
+  folder: ""
+  type: file
+  disableDeletion: true
+  editable: true
+  options:
+    path: /home/grafana/dashboards
