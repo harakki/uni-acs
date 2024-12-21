@@ -1,13 +1,11 @@
 route:
-  receiver: 'email'
+  receiver: 'telegram'
 
 receivers:
-  - name: 'email'
-    email_configs:
-      - send_resolved: true
-        text: "{{ .CommonAnnotations.description }}"
-        from: 'alertmanager@example.com'
-        to: 'you@example.com'
-        smarthost: 'smtp.example.com:587'
-        auth_username: 'your_username'
-        auth_password: 'your_password'
+  - name: 'telegram'
+    telegram_configs:
+      - chat_id: 
+        bot_token: 
+        send_resolved: true
+        parse_mode: HTML
+        message: "🔥 Alert: {{ .CommonLabels.alertname }} - {{ .CommonAnnotations.summary }}"
